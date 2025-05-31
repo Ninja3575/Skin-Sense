@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkinSense - Multi-Step Skin Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f9f5f3;
+      color: #333;
+      border-radius: 10px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      text-align: center;
+      color: #bf5a5a;
+    }
+    .question-container {
+      margin-top: 30px;
+    }
+    .question {
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-size: 1.05em;
+    }
+    input[type="radio"] {
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    button {
+      display: block;
+      margin: 25px auto 0 auto;
+      padding: 12px 35px;
+      background-color: #bf5a5a;
+      border: none;
+      color: white;
+      font-weight: 700;
+      border-radius: 7px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #953d3d;
+    }
+    #result {
+      margin-top: 40px;
+      padding: 25px;
+      background: #fceaea;
+      border-radius: 8px;
+      box-shadow: 0 1px 10px rgba(191, 90, 90, 0.3);
+      display: none;
+      line-height: 1.5;
+    }
+    #result h2 {
+      margin-top: 0;
+      color: #953d3d;
+    }
+    #result ul {
+      margin-left: 20px;
+      list-style-type: disc;
+    }
+  </style>
+</head>
+<body>
+  <h1>SkinSense</h1>
+  <p style="text-align:center;">Answer the questions to discover your skin type and get a personalized skincare routine.</p>
+
+  <div class="question-container" id="quiz">
+    <!-- Questions will be injected here -->
+  </div>
+
+  <button id="nextBtn" disabled>Next</button>
+
+  <div id="result"></div>
+
+<script>
+  const questions = [
+    {
+      question: "How does your skin feel a few hours after washing?",
+      options: [
+        {text: "Tight or rough", value: "dry"},
+        {text: "Shiny or greasy", value: "oily"},
+        {text: "Comfortable and balanced", value: "normal"},
+        {text: "Oily in some areas, dry in others", value: "combination"},
+        {text: "Irritated or itchy", value: "sensitive"},
+      ]
+    },
+    {
+      question: "How often do you experience breakouts?",
+      options: [
+        {text: "Frequently", value: "oily"},
+        {text: "Sometimes, mostly in oily areas", value: "combination"},
+        {text: "Rarely", value: "dry"},
+        {text: "Almost never", value: "normal"},
+        {text: "Often with redness or irritation", value: "sensitive"},
+      ]
+    },
+    {
+      question: "What type of moisturizer feels best on your skin?",
+      options: [
+        {text: "Thick, creamy moisturizer", value: "dry"},
+        {text: "Lightweight, oil-free gel", value: "oily"},
+        {text: "Regular balanced lotion", value: "normal"},
+        {text: "Different for T-zone and cheeks", value: "combination"},
+        {text: "Fragrance-free and soothing", value: "sensitive"},
+      ]
+    },
+    {
+      question: "How does your skin react to new products or environmental changes?",
+      options: [
+        {text: "Easily irritated or red", value: "sensitive"},
+        {text: "No noticeable reaction", value: "normal"},
+        {text: "Sometimes flaky or tight", value: "dry"},
+        {text: "Sometimes gets oily", value: "oily"},
+        {text: "Reactions vary by area", value: "combination"},
+      ]
+    }
+  ];
+
+  const skinData = {
+    dry: {
+      title: "Dry Skin",
+      description: `Dry skin lacks sufficient moisture and natural oils. It may feel tight, rough, or flaky.`,
+      commonIssues: [
+        "Flakiness and peeling",
+        "Itching or irritation",
+        "Dull, rough texture",
+        "Prone to wrinkles and fine lines"
+      ],
+      recommendedIngredients: [
+        "Hyaluronic Acid - for hydration",
+        "Ceramides - to restore skin barrier",
+        "Glycerin - to attract moisture",
+        "Shea Butter and Oils - for nourishment"
+      ],
+      careTips: [
+        "Avoid hot water and harsh soaps.",
+        "Use creamy, hydrating cleansers.",
+        "Apply moisturizer immediately after washing.",
+        "Avoid alcohol-based products."
+      ],
+      routine: `
+        <strong>Recommended Routine:</strong><br>
+        - Use a gentle, hydrating cleanser.<br>
+        - Apply a rich moisturizer with ceramides or shea butter.<br>
+        - Use hydrating serums like hyaluronic acid.<br>
+        - Protect with broad-spectrum sunscreen daily.<br>
+        - Exfoliate gently once a week.
+      `
+    },
+    oily: {
+      title: "Oily Skin",
+      description: `Oily skin produces excess sebum, causing shine and larger pores.`,
+      commonIssues: [
+        "Shiny complexion",
+        "Enlarged pores",
+        "Frequent breakouts and acne",
+        "Makeup may not last long"
+      ],
+      recommendedIngredients: [
+        "Salicylic Acid - to unclog pores",
+        "Niacinamide - controls oil and inflammation",
+        "Clay - absorbs excess oil",
+        "Lightweight, non-comedogenic moisturizers"
+      ],
+      careTips: [
+        "Cleanse twice daily with foaming or gel cleansers.",
+        "Avoid heavy creams and oily products.",
+        "Use oil-free and mattifying products.",
+        "Don't over-wash to prevent rebound oiliness."
+      ],
+      routine: `
+        <strong>Recommended Routine:</strong><br>
+        - Use a foaming or gel cleanser twice a day.<br>
+        - Apply lightweight, oil-free moisturizer.<br>
+        - Use products with salicylic acid or niacinamide.<br>
+        - Apply mattifying sunscreen daily.<br>
+        - Exfoliate 1-2 times per week.
+      `
+    },
+    combination: {
+      title: "Combination Skin",
+      description: `Combination skin has both oily and dry areas, typically oily in the T-zone and dry on cheeks.`,
+      commonIssues: [
+        "Oily forehead, nose, and chin",
+        "Dry or flaky cheeks",
+        "Occasional breakouts in oily areas",
+        "Difficulty finding balanced products"
+      ],
+      recommendedIngredients: [
+        "Gentle cleansers",
+        "Lightweight moisturizers",
+        "Spot treatments for oily areas",
+        "Hydrating ingredients for dry areas"
+      ],
+      careTips: [
+        "Use mild cleansers that balance skin.",
+        "Apply lighter moisturizer on oily zones, richer on dry zones.",
+        "Use exfoliants carefully to avoid irritation.",
+        "Sun protection is essential."
+      ],
+      routine: `
+        <strong>Recommended Routine:</strong><br>
+        - Use gentle cleanser suitable for all skin.<br>
+        - Apply light moisturizer on oily areas and richer cream on dry areas.<br>
+        - Use targeted treatments on oily zones.<br>
+        - Use sunscreen every day.<br>
+        - Exfoliate carefully once a week.
+      `
+    },
+    sensitive: {
+      title: "Sensitive Skin",
+      description: `Sensitive skin easily reacts with redness, itching, or burning to products or environmental factors.`,
+      commonIssues: [
+        "Redness and blotchiness",
+        "Itching and burning sensations",
+        "Dry patches and irritation",
+        "Reactions to fragrances or chemicals"
+      ],
+      recommendedIngredients: [
+        "Aloe Vera - soothing",
+        "Chamomile - calming",
+        "Oatmeal Extract - reduces irritation",
+        "Fragrance-free, gentle formulas"
+      ],
+      careTips: [
+        "Avoid harsh cleansers and exfoliants.",
+        "Patch test new products.",
+        "Use fragrance-free and hypoallergenic skincare.",
+        "Avoid excessive sun exposure."
+      ],
+      routine: `
+        <strong>Recommended Routine:</strong><br>
+        - Use gentle, fragrance-free cleanser.<br>
+        - Apply calming moisturizers with aloe or oatmeal.<br>
+        - Avoid alcohol, fragrance, and harsh chemicals.<br>
+        - Use mineral-based sunscreen.<br>
+        - Introduce new products slowly and patch test.
+      `
+    },
+    normal: {
+      title: "Normal Skin",
+      description: `Normal skin is well-balanced — not too oily or dry — with few imperfections.`,
+      commonIssues: [
+        "Generally even tone and texture",
+        "Rare breakouts",
+        "Good elasticity",
+        "Minimal sensitivity"
+      ],
+      recommendedIngredients: [
+        "Antioxidants like Vitamin C",
+        "Hyaluronic Acid for hydration",
+        "Lightweight moisturizers",
+        "Sunscreen for protection"
+      ],
+      careTips: [
+        "Maintain regular cleansing and moisturizing.",
+        "Protect skin from sun damage.",
+        "Use antioxidants to maintain skin health.",
+        "Exfoliate regularly but gently."
+      ],
+      routine: `
+        <strong>Recommended Routine:</strong><br>
+        - Use gentle cleanser.<br>
+        - Apply balanced moisturizer.<br>
+        - Use antioxidant serums (e.g., vitamin C).<br>
+        - Apply sunscreen daily.<br>
+        - Exfoliate once a week.
+      `
+    }
+  };
+
+  let currentQuestionIndex = 0;
+  const userAnswers = [];
+
+  const quizContainer = document.getElementById('quiz');
+  const nextBtn = document.getElementById('nextBtn');
+  const resultDiv = document.getElementById('result');
+
+  function loadQuestion() {
+    nextBtn.disabled = true;
+    resultDiv.style.display = 'none';
+    quizContainer.innerHTML = "";
+
+    const q = questions[currentQuestionIndex];
+
+    const questionElem = document.createElement('div');
+    questionElem.classList.add('question');
+    questionElem.textContent = `Q${currentQuestionIndex + 1}. ${q.question}`;
+    quizContainer.appendChild(questionElem);
+
+    q.options.forEach((option, idx) => {
+      const label = document.createElement('label');
+      label.htmlFor = `option${idx}`;
+
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'answer';
+      radio.id = `option${idx}`;
+      radio.value = option.value;
+
+      radio.addEventListener('change', () => {
+        nextBtn.disabled = false;
+      });
+
+      label.appendChild(radio);
+      label.appendChild(document.createTextNode(option.text));
+      quizContainer.appendChild(label);
+    });
+  }
+
+  function calculateSkinType() {
+    // Count frequency of each answer type
+    const count = {};
+    userAnswers.forEach(type => {
+      count[type] = (count[type] || 0) + 1;
+    });
+    // Find max count type
+    let maxCount = 0;
+    let predictedType = 'normal'; // default
+
+    for (const type in count) {
+      if (count[type] > maxCount) {
+        maxCount = count[type];
+        predictedType = type;
+      }
+    }
+
+    return predictedType;
+  }
+
+  function showResult() {
+    const skinType = calculateSkinType();
+    const data = skinData[skinType];
+    
+    quizContainer.style.display = 'none';
+    nextBtn.style.display = 'none';
+    resultDiv.style.display = 'block';
+
+    resultDiv.innerHTML = `
+      <h2>Your Skin Type: ${data.title}</h2>
+      <p>${data.description}</p>
+      <h3>Common Issues:</h3>
+      <ul>${data.commonIssues.map(i => `<li>${i}</li>`).join('')}</ul>
+      <h3>Recommended Ingredients:</h3>
+      <ul>${data.recommendedIngredients.map(i => `<li>${i}</li>`).join('')}</ul>
+      <h3>Care Tips:</h3>
+      <ul>${data.careTips.map(i => `<li>${i}</li>`).join('')}</ul>
+      <p>${data.routine}</p>
+    `;
+  }
+
+  nextBtn.addEventListener('click', () => {
+    // Get selected answer
+    const selected = document.querySelector('input[name="answer"]:checked');
+    if (!selected) return; // Safety
+
+    userAnswers.push(selected.value);
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex < questions.length) {
+      loadQuestion();
+      if (currentQuestionIndex === questions.length - 1) {
+        nextBtn.textContent = 'Finish';
+      }
+    } else {
+      showResult();
+    }
+  });
+
+  // Initialize
+  loadQuestion();
+
+</script>
+</body>
+</html>
